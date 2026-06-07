@@ -2,3 +2,4 @@
 models/auraface/
 uploads/
 *.pyc
+face_recognition/models/
