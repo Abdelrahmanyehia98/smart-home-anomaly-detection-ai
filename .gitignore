@@ -1,1 +1,4 @@
 *.onnx
+models/auraface/
+uploads/
+*.pyc
