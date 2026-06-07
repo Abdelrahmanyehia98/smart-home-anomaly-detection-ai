@@ -136,8 +136,6 @@ def face_register():
 
     file = request.files['file']
     name = request.form.get('name', 'unknown')
-    print(f"DEBUG - Received name: '{name}'")  # ← زود ده
-    print(f"DEBUG - Form data: {request.form}")  # ← وده
     file_path, err = save_upload(file)
     if err:
         return err
