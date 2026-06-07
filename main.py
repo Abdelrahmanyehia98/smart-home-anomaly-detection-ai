@@ -51,7 +51,7 @@ def predict(data: SensorData):
     high_power = 1 if data.power > 400 else 0
     high_smoke = 1 if data.smoke > 10 else 0
 
-    # 33 features للـ detector
+    
     features_detector = [
         data.temp, data.smoke, data.gas, data.power,
         data.motion, data.door, data.water_flow,
@@ -69,7 +69,7 @@ def predict(data: SensorData):
         motion_door, high_power, high_smoke,
     ]
 
-    # 7 features للـ classifier
+    
     features_classifier = [
         data.temp, data.smoke, data.gas, data.power,
         data.motion, data.door, data.water_flow
