@@ -1,0 +1,8 @@
+flask
+opencv-python
+pymongo
+insightface
+huggingface_hub
+numpy
+werkzeug
+onnxruntime
