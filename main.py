@@ -80,7 +80,7 @@ def predict(data: SensorData):
 
    
     prob = detector.predict_proba(X_detector)[0][1]
-    is_anomaly = bool(prob > 0.5)
+    is_anomaly = bool(prob > 0.3)
 
     if not is_anomaly:
         return {
