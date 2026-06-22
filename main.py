@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import joblib
 import numpy as np
 from datetime import datetime
- 
+
 app = FastAPI()
 
 # ── Load Models ──
@@ -47,15 +47,18 @@ class SensorData(BaseModel):
 def predict(data: SensorData):
     now = datetime.now()
 
+    is_night = 1 if (now.hour >= 23 or now.hour <= 5) else 0
     motion_door = data.motion * data.door
     high_power = 1 if data.power > 400 else 0
     high_smoke = 1 if data.smoke > 10 else 0
+    smoke_gas_ratio = data.smoke / (data.gas + 1)
+    temp_power_ratio = data.temp / (data.power + 1)
 
-    
+
     features_detector = [
         data.temp, data.smoke, data.gas, data.power,
         data.motion, data.door, data.water_flow,
-        now.hour, now.day, now.weekday(),
+        now.hour, now.day, now.weekday(), is_night,
         data.temp_lag1, data.temp_lag2,
         data.smoke_lag1, data.smoke_lag2,
         data.gas_lag1, data.gas_lag2,
@@ -67,9 +70,9 @@ def predict(data: SensorData):
         data.power_roll_mean, data.power_roll_std,
         data.water_flow_roll_mean, data.water_flow_roll_std,
         motion_door, high_power, high_smoke,
+        smoke_gas_ratio, temp_power_ratio,
     ]
 
-    
     features_classifier = [
         data.temp, data.smoke, data.gas, data.power,
         data.motion, data.door, data.water_flow
@@ -78,9 +81,8 @@ def predict(data: SensorData):
     X_detector = np.array(features_detector).reshape(1, -1)
     X_classifier = np.array(features_classifier).reshape(1, -1)
 
-   
     prob = detector.predict_proba(X_detector)[0][1]
-    is_anomaly = bool(prob > 0.3)
+    is_anomaly = bool(prob > 0.5)
 
     if not is_anomaly:
         return {
@@ -89,7 +91,6 @@ def predict(data: SensorData):
             "confidence": round(float(prob), 3)
         }
 
-    
     type_pred = classifier.predict(X_classifier)[0]
     anomaly_type = label_encoder.inverse_transform([type_pred])[0]
 
