@@ -8,7 +8,8 @@ import pickle
 import time
 import uuid
 import logging
-from huggingface_hub import snapshot_download
+# We still import this just in case, but won't use it to download anymore
+from huggingface_hub import snapshot_download 
 from insightface.app import FaceAnalysis
 from werkzeug.utils import secure_filename
 
@@ -29,9 +30,9 @@ class FaceRecognitionAPI:
         os.makedirs(self.upload_folder, exist_ok=True)
 
     def initialize_model(self):
-        logger.info("Downloading and initializing AuraFace model...")
+        logger.info("Initializing pre-downloaded AuraFace model...")
         try:
-            snapshot_download("fal/AuraFace-v1", local_dir="models/auraface")
+            # REMOVED snapshot_download because Docker handles it now
             self.face_app = FaceAnalysis(
                 name="auraface",
                 providers=["CPUExecutionProvider"],
@@ -40,7 +41,7 @@ class FaceRecognitionAPI:
             self.face_app.prepare(ctx_id=0, det_size=(640, 640))
             logger.info("Model initialized successfully")
         except Exception as e:
-            logger.error(f"Error initializing model: {e}")
+            logger.error(f"Error initializing model: {e}", exc_info=True)
             raise
 
     def process_image(self, image_path):
@@ -186,6 +187,8 @@ def face_register():
         }), 201
 
     except Exception as e:
+        # CRITICAL ADDITION: This logs the exact Python traceback to your terminal!
+        logger.error(f"CRASH in /face-register: {str(e)}", exc_info=True)
         try:
             os.remove(file_path)
         except:
@@ -252,6 +255,8 @@ def face_auth():
         }), 200
 
     except Exception as e:
+        # CRITICAL ADDITION: This logs the exact Python traceback to your terminal!
+        logger.error(f"CRASH in /face-auth: {str(e)}", exc_info=True)
         try:
             os.remove(file_path)
         except:
