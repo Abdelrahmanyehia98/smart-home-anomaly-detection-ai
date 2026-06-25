@@ -244,7 +244,7 @@ def face_auth():
             else:
                 results.append({
                     'known': False,
-                    'confidence': round(float(1 - distance), 2)
+                    'confidence': 0.0 if distance == float('inf') else round(float(1 - distance), 2)
                 })
 
         os.remove(file_path)
